@@ -1,0 +1,12 @@
+{
+  "user_name": "",
+  "user_nickname": "",
+  "important_facts": [],
+  "preferences": {
+    "topics_love": [],
+    "topics_avoid": [],
+    "communication_style": ""
+  },
+  "milestones": [],
+  "last_updated": ""
+}
