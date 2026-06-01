@@ -6,8 +6,5 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1.py" },
     { "src": "/(.*)",     "dest": "/$1" }
-  ],
-  "env": {
-    "DEEPSEEK_API_KEY": "@deepseek_api_key"
-  }
+  ]
 }
