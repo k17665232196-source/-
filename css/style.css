@@ -1,0 +1,395 @@
+/* ═══════════════════════════════════════════════
+   枙柚 · 知友AI — Telegram 风格 UI
+   style.css  v2
+═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+/* ══ 1. CSS Variables ══════════════════════════ */
+:root {
+  /* 背景：森林绿调，对应图片背景 */
+  --bg-wallpaper:   #d4dfc8;          /* 聊天区背景底色 */
+  --bg-header:      #eef3ea;          /* 顶栏 */
+  --bg-input:       #f0f5eb;          /* 输入栏 */
+
+  /* 气泡 */
+  --bubble-in:      rgba(255,255,255,0.92);   /* 对方：白色半透明 */
+  --bubble-out:     rgba(200,225,175,0.96);   /* 自己：绿色 */
+  --bubble-shadow:  0 1px 2px rgba(0,0,0,0.12);
+
+  /* 文字 */
+  --text-main:      #1a1a1a;
+  --text-soft:      #7a8c6e;
+  --text-time:      #8fa07e;
+
+  /* 强调色（绿）*/
+  --green:          #5a9e6f;
+  --green-btn:      #4caf72;
+  --green-light:    #c8e1af;
+
+  /* 顶栏分隔线 */
+  --border:         rgba(150,180,130,0.25);
+
+  /* 圆角 */
+  --r-bubble:       18px;
+  --r-input:        24px;
+
+  /* 字体 */
+  --font: 'Noto Sans SC', -apple-system, sans-serif;
+
+  /* 过渡 */
+  --ease: 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ══ 2. Reset ══════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: var(--font); background: #c9d8b8; }
+
+/* ══ 3. App Shell ══════════════════════════════ */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 430px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  /* 模糊森林背景 */
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(210,225,190,0.45) 0%,
+      rgba(185,210,160,0.30) 60%,
+      rgba(170,200,145,0.50) 100%
+    ),
+    url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80') center/cover no-repeat;
+}
+
+/* ══ 4. Header (Telegram 顶栏) ════════════════════ */
+.tg-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 8px;
+  background: var(--bg-header);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 20;
+}
+
+/* 返回箭头 */
+.tg-back {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer;
+  color: var(--green);
+  border-radius: 50%;
+  transition: background var(--ease);
+  flex-shrink: 0;
+}
+.tg-back:hover { background: rgba(90,158,111,0.10); }
+.tg-back svg  { width: 22px; height: 22px; }
+
+/* 头像 */
+.tg-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #8bc38a, #5a9e6f);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: white; font-weight: 500;
+  overflow: hidden;
+  border: 1.5px solid rgba(90,158,111,0.30);
+}
+.tg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 名字 + 状态 */
+.tg-info { flex: 1; min-width: 0; }
+.tg-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+.tg-status {
+  font-size: 13px;
+  color: var(--green);
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 1px;
+}
+.tg-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 2.2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+/* 菜单三点 */
+.tg-menu {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-soft);
+  border-radius: 50%;
+  transition: background var(--ease);
+}
+.tg-menu:hover { background: rgba(90,158,111,0.10); }
+.tg-menu svg { width: 20px; height: 20px; }
+
+/* ══ 5. Date Pill ══════════════════════════════ */
+.date-pill {
+  display: flex; justify-content: center;
+  padding: 12px 0 6px;
+}
+.date-pill span {
+  background: rgba(120,150,100,0.50);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  letter-spacing: 0.3px;
+}
+
+/* ══ 6. System Notice (Telegram 加密提示) ═══════ */
+.sys-notice {
+  display: flex; justify-content: center;
+  padding: 4px 24px 10px;
+}
+.sys-notice-inner {
+  background: rgba(120,150,100,0.45);
+  backdrop-filter: blur(6px);
+  color: rgba(255,255,255,0.95);
+  font-size: 12.5px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  text-align: center;
+  line-height: 1.6;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.sys-notice-inner svg { width: 13px; height: 13px; opacity: 0.85; }
+
+/* ══ 7. Chat Area ══════════════════════════════ */
+#chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  scroll-behavior: smooth;
+}
+#chat-messages::-webkit-scrollbar { width: 3px; }
+#chat-messages::-webkit-scrollbar-thumb { background: rgba(90,158,111,0.35); border-radius: 2px; }
+
+/* ══ 8. Message Row ════════════════════════════ */
+.msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  animation: msgIn 0.25s ease forwards;
+  opacity: 0;
+}
+@keyframes msgIn {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.msg-row.out { flex-direction: row-reverse; }
+
+/* 小头像（对方才显示）*/
+.msg-mini-avatar {
+  width: 0; /* out 不显示 */
+  flex-shrink: 0;
+}
+.msg-row.in .msg-mini-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8bc38a, #5a9e6f);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: white;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.msg-row.in .msg-mini-avatar img { width:100%; height:100%; object-fit:cover; }
+
+/* ══ 9. Bubble ═════════════════════════════════ */
+.bubble {
+  max-width: 72%;
+  padding: 9px 13px;
+  border-radius: var(--r-bubble);
+  font-size: 14.5px;
+  line-height: 1.55;
+  word-break: break-word;
+  position: relative;
+  box-shadow: var(--bubble-shadow);
+}
+
+/* 对方（in）—— 白色，左下角变尖 */
+.msg-row.in .bubble {
+  background: var(--bubble-in);
+  color: var(--text-main);
+  border-bottom-left-radius: 5px;
+}
+
+/* 自己（out）—— 绿色，右下角变尖 */
+.msg-row.out .bubble {
+  background: var(--bubble-out);
+  color: var(--text-main);
+  border-bottom-right-radius: 5px;
+}
+
+/* 时间戳 + 已读（Telegram 右下角样式）*/
+.bubble-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  margin-top: 3px;
+  line-height: 1;
+}
+.bubble-time {
+  font-size: 11px;
+  color: var(--text-time);
+  white-space: nowrap;
+}
+/* out 气泡的时间稍深 */
+.msg-row.out .bubble-time { color: #6a9060; }
+
+/* 双勾（已读）*/
+.read-tick { color: #4caf72; display: flex; }
+.read-tick svg { width: 14px; height: 14px; }
+
+/* ══ 10. Image Bubble ══════════════════════════ */
+.bubble.img-bubble {
+  padding: 4px;
+  background: transparent;
+  box-shadow: none;
+}
+.bubble.img-bubble img {
+  width: 100%;
+  max-width: 240px;
+  border-radius: 14px;
+  display: block;
+  object-fit: cover;
+}
+.bubble.img-bubble .img-caption {
+  padding: 6px 8px 2px;
+  font-size: 14px;
+  color: var(--text-main);
+}
+.bubble.img-bubble .bubble-meta { padding: 2px 6px 4px; }
+
+/* ══ 11. Typing Indicator ══════════════════════ */
+.typing-bubble {
+  padding: 11px 16px;
+  background: var(--bubble-in);
+  border-radius: var(--r-bubble);
+  border-bottom-left-radius: 5px;
+  box-shadow: var(--bubble-shadow);
+  display: flex; gap: 5px; align-items: center;
+}
+.typing-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #9dbf8a;
+  animation: tdot 1.3s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay:.2s }
+.typing-dot:nth-child(3) { animation-delay:.4s }
+@keyframes tdot {
+  0%,60%,100% { transform:translateY(0); opacity:.6 }
+  30%          { transform:translateY(-6px); opacity:1 }
+}
+
+/* ══ 12. Input Bar ═════════════════════════════ */
+.tg-input-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px 10px 20px;
+  background: var(--bg-input);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+}
+
+/* 附件按钮 */
+.tg-attach {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: none; border: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-soft); cursor: pointer;
+  transition: color var(--ease);
+  flex-shrink: 0;
+}
+.tg-attach:hover { color: var(--green); }
+.tg-attach svg { width: 22px; height: 22px; }
+
+/* 输入框 */
+#user-input {
+  flex: 1;
+  border: none;
+  border-radius: var(--r-input);
+  padding: 9px 14px;
+  font-family: var(--font);
+  font-size: 14.5px;
+  background: #fff;
+  color: var(--text-main);
+  resize: none;
+  outline: none;
+  max-height: 120px;
+  overflow-y: auto;
+  line-height: 1.5;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+#user-input::placeholder { color: #afc09a; }
+
+/* 历史按钮（Telegram 有个时钟图标）*/
+.tg-history {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: none; border: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-soft); cursor: pointer;
+  transition: color var(--ease);
+  flex-shrink: 0;
+}
+.tg-history:hover { color: var(--green); }
+.tg-history svg { width: 22px; height: 22px; }
+
+/* 发送 / 麦克风 按钮 */
+#send-btn {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--green-btn);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  transition: background var(--ease), transform var(--ease);
+  box-shadow: 0 2px 8px rgba(76,175,114,0.35);
+}
+#send-btn:hover  { background: #43a066; }
+#send-btn:active { transform: scale(0.92); }
+#send-btn svg { width: 20px; height: 20px; }
+
+/* ══ 13. 暗黑模式 ══════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-header:   rgba(38,50,35,0.96);
+    --bg-input:    rgba(38,50,35,0.96);
+    --bubble-in:   rgba(45,60,40,0.95);
+    --bubble-out:  rgba(55,90,50,0.96);
+    --text-main:   #e8f0e0;
+    --text-soft:   #7a9a6a;
+    --text-time:   #6a8a5a;
+    --border:      rgba(80,110,60,0.30);
+  }
+  #user-input { background: #2a3825; color: #e8f0e0; }
+  #user-input::placeholder { color: #5a7a4a; }
+}
