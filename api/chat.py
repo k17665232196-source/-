@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler
 import json, os
 from pathlib import Path
-import anthropic
+from openai import OpenAI
 
 BASE = Path(__file__).parent.parent / "data"
 
@@ -52,15 +52,21 @@ class handler(BaseHTTPRequestHandler):
         if not messages:
             return self._resp({"error": "messages 不能为空"}, 400)
 
-        client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
+        # ── DeepSeek 客户端（兼容 OpenAI 格式）──
+        client = OpenAI(
+            api_key  = os.environ.get("DEEPSEEK_API_KEY", ""),
+            base_url = "https://api.deepseek.com",
+        )
+
         try:
-            r = client.messages.create(
-                model="claude-opus-4-5",
-                max_tokens=1024,
-                system=system_prompt(),
-                messages=messages,
+            r = client.chat.completions.create(
+                model    = "deepseek-chat",   # 或 "deepseek-reasoner"
+                messages = [{"role": "system", "content": system_prompt()}] + messages,
+                max_tokens = 1024,
             )
-            self._resp({"reply": r.content[0].text})
+            reply = r.choices[0].message.content
+            self._resp({"reply": reply})
+
         except Exception as e:
             self._resp({"error": str(e)}, 500)
 
@@ -79,4 +85,4 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def log_message(self, *a): pass   # 静默日志
+    def log_message(self, *a): pass
