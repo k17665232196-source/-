@@ -54,7 +54,7 @@ class handler(BaseHTTPRequestHandler):
 
         # ── DeepSeek 客户端（兼容 OpenAI 格式）──
         client = OpenAI(
-            api_key  = os.environ.get("DEEPSEEKs_API_KEY", ""),
+            api_key  = os.environ.get("DEEPSEEK_API_KEY", ""),
             base_url = "https://api.deepseek.com",
         )
 
