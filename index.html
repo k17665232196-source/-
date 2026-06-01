@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <meta name="theme-color" content="#eef3ea"/>
+  <meta name="description" content="枙柚 — 陪着你"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <title>枙柚</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ 顶栏 ══ -->
+  <header class="tg-header">
+    <!-- 返回 -->
+    <button class="tg-back" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <!-- 头像 -->
+    <div class="tg-avatar" id="header-avatar">枙</div>
+    <!-- 名字 & 状态 -->
+    <div class="tg-info">
+      <div class="tg-name">枙柚</div>
+      <div class="tg-status">
+        <span class="tg-dot"></span>陪着你
+      </div>
+    </div>
+    <!-- 三点菜单 -->
+    <button class="tg-menu" aria-label="菜单">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="5"  cy="12" r="1.5"/>
+        <circle cx="12" cy="12" r="1.5"/>
+        <circle cx="19" cy="12" r="1.5"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- ══ 聊天区 ══ -->
+  <main id="chat-messages">
+
+    <!-- 日期药丸 -->
+    <div class="date-pill"><span id="today-date">2025年7月6日</span></div>
+
+    <!-- 系统通知（Telegram 加密提示） -->
+    <div class="sys-notice">
+      <div class="sys-notice-inner">
+        <span>🔒 你们已成为彼此特别的人</span>
+        <span>所有聊天消息都会进行端到端加密</span>
+      </div>
+    </div>
+
+    <!-- 消息由 app.js 动态插入 -->
+  </main>
+
+  <!-- ══ 输入栏 ══ -->
+  <footer class="tg-input-bar">
+    <!-- 附件 -->
+    <button class="tg-attach" aria-label="附件">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+      </svg>
+    </button>
+
+    <!-- 输入框 -->
+    <textarea id="user-input" rows="1" placeholder="想和枙柚说些什么？" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+
+    <!-- 时钟（历史） -->
+    <button class="tg-history" aria-label="历史">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+    </button>
+
+    <!-- 发送 / 麦克风 -->
+    <button id="send-btn" aria-label="发送">
+      <!-- 麦克风图标（默认，输入文字后换成发送箭头，见 app.js） -->
+      <svg id="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+        <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8"  y1="23" x2="16" y2="23"/>
+      </svg>
+      <svg id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </footer>
+
+</div>
+<script src="/js/app.js"></script>
+</body>
+</html>
