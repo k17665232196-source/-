@@ -1,25 +1,50 @@
-/* ═══════════════════════════════════════════════
-   枙柚 · 知友AI — app.js  v3（Upstash 记忆版）
-═══════════════════════════════════════════════ */
+/* 枙柚 · app.js v4 — 本地存储版 */
 
+// ── 本地存储读写 ──────────────────────────────
+function saveLocal(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
+}
+function loadLocal(key, def) {
+  try {
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : def;
+  } catch(e) { return def; }
+}
+
+// ── 状态（从本地读取）────────────────────────
+let history = loadLocal('zhiyou_history', []);
+let memory  = loadLocal('zhiyou_memory',  {});
 let sending = false;
-const UID = "user_001"; // 用户唯一ID，多用户可改成登录系统
 
-const chatEl  = document.getElementById('chat-messages');
-const inputEl = document.getElementById('user-input');
-const sendBtn = document.getElementById('send-btn');
+const chatEl   = document.getElementById('chat-messages');
+const inputEl  = document.getElementById('user-input');
+const sendBtn  = document.getElementById('send-btn');
 const iconMic  = document.getElementById('icon-mic');
 const iconSend = document.getElementById('icon-send');
 
 // ── 日期 ─────────────────────────────────────
-(function setDate() {
+(function() {
   const el = document.getElementById('today-date');
   if (!el) return;
   const d = new Date();
   el.textContent = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
 })();
 
-// ── 输入框自适应 + 图标切换 ───────────────────
+// ── 启动时恢复历史消息 ────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  if (history.length > 0) {
+    // 恢复最近的聊天记录显示
+    history.forEach(m => {
+      appendBubble(m.role === 'user' ? 'out' : 'in', m.content, '');
+    });
+  } else {
+    // 第一次打开
+    setTimeout(() => appendBubble('in', '你好呀 🌿', now()), 500);
+    setTimeout(() => appendBubble('in', '今天过得怎么样？', now()), 1000);
+  }
+});
+
+// ── 输入框 ────────────────────────────────────
 inputEl.addEventListener('input', () => {
   inputEl.style.height = 'auto';
   inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
@@ -28,15 +53,12 @@ inputEl.addEventListener('input', () => {
   iconSend.style.display = hasText ? 'block' : 'none';
 });
 
-// ── 回车发送 ──────────────────────────────────
 inputEl.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 });
-sendBtn.addEventListener('click', () => {
-  if (inputEl.value.trim()) send();
-});
+sendBtn.addEventListener('click', () => { if (inputEl.value.trim()) send(); });
 
-// ── 发送消息 ──────────────────────────────────
+// ── 发送 ──────────────────────────────────────
 async function send() {
   if (sending) return;
   const text = inputEl.value.trim();
@@ -49,32 +71,37 @@ async function send() {
   iconSend.style.display = 'none';
 
   appendBubble('out', text, now());
-
   const typingRow = showTyping();
 
   try {
     const res  = await fetch('/api/chat', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ uid: UID, message: text })
+      body:    JSON.stringify({ message: text, history, memory })
     });
     const data = await res.json();
     removeTyping(typingRow);
 
-    const reply = data.reply || data.error || '出了点小问题，稍后再试试吧 🌿';
-    appendBubble('in', reply, now());
+    if (data.error) {
+      appendBubble('in', '出了点小问题，稍后再试试吧 🌿', now());
+    } else {
+      appendBubble('in', data.reply, now());
+      // 更新本地存储
+      history = data.history;
+      memory  = data.memory;
+      saveLocal('zhiyou_history', history);
+      saveLocal('zhiyou_memory',  memory);
+    }
 
-  } catch (err) {
+  } catch(e) {
     removeTyping(typingRow);
     appendBubble('in', '网络好像有点问题，等一下再试试吧 🥺', now());
-    console.error(err);
   }
 
   sending = false;
-  scrollBottom();
 }
 
-// ── 渲染气泡 ──────────────────────────────────
+// ── 气泡 ──────────────────────────────────────
 function appendBubble(dir, content, time) {
   const row = document.createElement('div');
   row.className = `msg-row ${dir}`;
@@ -86,9 +113,9 @@ function appendBubble(dir, content, time) {
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
 
-  const textNode = document.createElement('span');
-  textNode.textContent = content;
-  bubble.appendChild(textNode);
+  const span = document.createElement('span');
+  span.textContent = content;
+  bubble.appendChild(span);
 
   const meta = document.createElement('div');
   meta.className = 'bubble-meta';
@@ -104,57 +131,31 @@ function appendBubble(dir, content, time) {
   `;
   bubble.appendChild(meta);
 
-  if (dir === 'in') {
-    row.appendChild(avatar);
-    row.appendChild(bubble);
-  } else {
-    row.appendChild(bubble);
-  }
+  if (dir === 'in') { row.appendChild(avatar); row.appendChild(bubble); }
+  else { row.appendChild(bubble); }
 
   chatEl.appendChild(row);
-  scrollBottom();
+  chatEl.scrollTop = chatEl.scrollHeight;
 }
 
 // ── 打字动画 ──────────────────────────────────
 function showTyping() {
   const row = document.createElement('div');
   row.className = 'msg-row in';
-
   const av = document.createElement('div');
   av.className = 'msg-mini-avatar';
   av.textContent = '枙';
-
   const bubble = document.createElement('div');
   bubble.className = 'typing-bubble';
-  bubble.innerHTML = `
-    <div class="typing-dot"></div>
-    <div class="typing-dot"></div>
-    <div class="typing-dot"></div>
-  `;
-
-  row.appendChild(av);
-  row.appendChild(bubble);
+  bubble.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
+  row.appendChild(av); row.appendChild(bubble);
   chatEl.appendChild(row);
-  scrollBottom();
+  chatEl.scrollTop = chatEl.scrollHeight;
   return row;
 }
+function removeTyping(el) { if (el?.parentNode) el.parentNode.removeChild(el); }
 
-function removeTyping(el) {
-  if (el?.parentNode) el.parentNode.removeChild(el);
-}
-
-// ── 工具 ──────────────────────────────────────
 function now() {
   const d = new Date();
   return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
-
-function scrollBottom() {
-  chatEl.scrollTop = chatEl.scrollHeight;
-}
-
-// ── 开场消息 ──────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => appendBubble('in', '你好呀 🌿', ''), 500);
-  setTimeout(() => appendBubble('in', '今天过得怎么样？', ''), 1000);
-});
